@@ -1,0 +1,22 @@
+
+
+
+// PIN DEFINITIONS
+#define ENPIN 8
+#define STEPAZPIN  2 //X.STEP
+#define DIRAZPIN  5 // X.DIR
+#define STEPELPIN 3 //Y.STEP
+#define DIRELPIN 6 // Y.DIR
+#define STEPZPIN 4 //Z.STEP
+#define DIRZPIN 7 // Z.DIR
+
+
+//MECHANICAL DEFINITIONS
+#define PULLEYRATE 1
+#define STEPSPERREV 200
+
+#define MAXDEGAZ 360
+#define MAXDEGEL 120
+
+
+
