@@ -17,8 +17,8 @@ TODO:
 #include "config.h"
 
 //Config variables TODO: move to config.h
-int pulseWidthMicros = 300;  // microseconds
-int millisBtwnSteps = 3000;
+int pulseWidthMicros = 400;  // microseconds
+int millisBtwnSteps = 4000;
 
 //Functions declarations
 void moveAxis(int axis, int deg, bool dir);
@@ -26,32 +26,44 @@ void initHw();
 void homeSystem();
 void homeAxis(int axis);
 
-void recvWithStartEndMarkers();
-void showNewData();
-
+void handleCommand(const char* cmd);
 
 
 //Internal variables
-const byte numChars = 32;
-char receivedChars[numChars];
-boolean newData = false;
+const byte BUF_LEN = 32;
+char receivedChars[BUF_LEN];
 
 
 
 void setup() {
   initHw();
   Serial.println(F("Rotator is alive!"));
+  homeSystem();
+  Serial.println(F("Homing Done!"));
+  Serial.println(F("Enter command like: 045+ 090-"));
 }
 
 void loop() {
   //TODO: replace this by serial handling.
-  Serial.println(F("Running clockwise"));
-  moveAxis(1,10,1);
-  delay(1000); // One second delay
-  Serial.println(F("Running counter-clockwise"));
-  moveAxis(1,10,0);
-  delay(1000);
+  static byte idx = 0;
+
+  while (Serial.available() > 0) {
+    char c = Serial.read();
+    Serial.write(c);
+
+    if (c == '\n') {
+      receivedChars[idx] = '\0';
+      idx = 0;
+      handleCommand(receivedChars);
+    }
+    else if (idx < BUF_LEN - 1) {
+      receivedChars[idx++] = c;
+    }
+    // overflow safely ignored
+  }
+
 }
+
 
 
 /*
@@ -78,8 +90,8 @@ void moveAxis(int axis, int deg, bool dir){
     break;
   }
   digitalWrite(dirPin, dir);
-  int steps = deg*PULLEYRATE*STEPSPERREV/360;
-  for (int i = 0; i < steps; i++) {
+  long steps = (long)deg * STEPSPERREV * PULLEYRATE / 360;
+  for (long i = 0; i < steps; i++) {
     digitalWrite(stepPin, HIGH);
     delayMicroseconds(pulseWidthMicros);
     digitalWrite(stepPin, LOW);
@@ -92,8 +104,12 @@ Homes all axis, one after the other
 No arguments
 */
 void homeSystem(){
+  //Serial.println(F("Homing Azimuth..."));
+  //homeAxis(0);
+  Serial.println(F("Homing Elevation..."));
   homeAxis(1);
-  homeAxis(2);
+  Serial.println(F("Moving Elevation to 0 deg"));
+  moveAxis(1,STOPOFFSETEL,1);
 }
 
 /*
@@ -115,7 +131,7 @@ void homeAxis(int axis){
   default:
     break;
   }
-  moveAxis(axis,axismax,1);
+  moveAxis(axis,axismax,0);
 }
 
 
@@ -136,47 +152,28 @@ void initHw(){
 }
 
 
+// --- Parse + sanitize + execute ---
+void handleCommand(const char* cmd) {
+  int azCmd, elCmd;
+  bool azDir, elDir;
+  char sign1 = 0, sign2 = 0, extra = 0;
 
+  int n = sscanf(cmd, " %d%c %d%c %c", &azCmd, &sign1, &elCmd, &sign2, &extra);
+  if (n != 4) {
+    Serial.println(F("Parse error"));
+    return;
+  }
 
+  if ((sign1 != '+') && (sign1 != '-')) return;
+  if ((sign2 != '+') && (sign2 != '-')) return;
 
+  azDir = (sign1 == '+');
+  elDir = (sign2 == '+');
 
+  // Safety limits
+  if (azCmd < 0 || azCmd > 360) return;
+  if (elCmd < 0 || elCmd > 360) return;
 
-void recvWithStartEndMarkers() {
-    static boolean recvInProgress = false;
-    static byte ndx = 0;
-    char startMarker = '<';
-    char endMarker = '>';
-    char rc;
- 
-    while (Serial.available() > 0 && newData == false) {
-        rc = Serial.read();
-
-        if (recvInProgress == true) {
-            if (rc != endMarker) {
-                receivedChars[ndx] = rc;
-                ndx++;
-                if (ndx >= numChars) {
-                    ndx = numChars - 1;
-                }
-            }
-            else {
-                receivedChars[ndx] = '\0'; // terminate the string
-                recvInProgress = false;
-                ndx = 0;
-                newData = true;
-            }
-        }
-
-        else if (rc == startMarker) {
-            recvInProgress = true;
-        }
-    }
-}
-
-void showNewData() {
-    if (newData == true) {
-        Serial.print("This just in ... ");
-        Serial.println(receivedChars);
-        newData = false;
-    }
+  moveAxis(0, azCmd, azDir);
+  moveAxis(1, elCmd, elDir);
 }
