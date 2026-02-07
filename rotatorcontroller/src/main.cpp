@@ -1,13 +1,12 @@
 /*
 Saturn B Az-El controller
-By Manoel - ON6RF
+Manoel - ON6RF
 
 
 Uses a CNC Controller V3 board on an Arduino Uno. 
 
 
 TODO: 
-- Implement Serial command parsing
 - Implement Hamlib
 - Implement rate sensor sensing to avoid ramming for zeros
 
@@ -16,9 +15,6 @@ TODO:
 #include <Arduino.h>
 #include "config.h"
 
-//Config variables TODO: move to config.h
-int pulseWidthMicros = 400;  // microseconds
-int millisBtwnSteps = 4000;
 
 //Functions declarations
 void moveAxis(int axis, int deg, bool dir);
@@ -33,18 +29,20 @@ void handleCommand(const char* cmd);
 const byte BUF_LEN = 32;
 char receivedChars[BUF_LEN];
 
+bool isHomed = false;
+float posAz = 0.0f;
+float posEl = 0.0f;
+
 
 
 void setup() {
   initHw();
   Serial.println(F("Rotator is alive!"));
   homeSystem();
-  Serial.println(F("Homing Done!"));
-  Serial.println(F("Enter command like: 045+ 090-"));
+  Serial.println(F("Enter command, standard format: \n045+ 090-"));
 }
 
 void loop() {
-  //TODO: replace this by serial handling.
   static byte idx = 0;
 
   while (Serial.available() > 0) {
@@ -59,12 +57,9 @@ void loop() {
     else if (idx < BUF_LEN - 1) {
       receivedChars[idx++] = c;
     }
-    // overflow safely ignored
   }
 
 }
-
-
 
 /*
 Moves the axis in the specified direction. 
@@ -93,9 +88,9 @@ void moveAxis(int axis, int deg, bool dir){
   long steps = (long)deg * STEPSPERREV * PULLEYRATE / 360;
   for (long i = 0; i < steps; i++) {
     digitalWrite(stepPin, HIGH);
-    delayMicroseconds(pulseWidthMicros);
+    delayMicroseconds(PWMMICROS);
     digitalWrite(stepPin, LOW);
-    delayMicroseconds(millisBtwnSteps);
+    delayMicroseconds(STEPMILLIS);
   }
 }
 
@@ -104,12 +99,17 @@ Homes all axis, one after the other
 No arguments
 */
 void homeSystem(){
-  //Serial.println(F("Homing Azimuth..."));
-  //homeAxis(0);
+  Serial.println(F("Homing Azimuth..."));
+  homeAxis(0);
+  Serial.println(F("Moving Azimuth to 0 deg"));
+  moveAxis(0,STOPOFFSETAZ,1);
+
   Serial.println(F("Homing Elevation..."));
   homeAxis(1);
   Serial.println(F("Moving Elevation to 0 deg"));
   moveAxis(1,STOPOFFSETEL,1);
+  Serial.println(F("Homing Done!"));
+  isHomed = true;
 }
 
 /*
@@ -152,7 +152,9 @@ void initHw(){
 }
 
 
-// --- Parse + sanitize + execute ---
+/*
+Parses the serial command, sanitizes the input and triggers the proper action
+*/
 void handleCommand(const char* cmd) {
   int azCmd, elCmd;
   bool azDir, elDir;
