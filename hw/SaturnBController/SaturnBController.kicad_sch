@@ -1,0 +1,140 @@
+(kicad_sch
+	(version 20250114)
+	(generator "eeschema")
+	(generator_version "9.0")
+	(uuid "afcfca2a-9dd9-4804-a8f9-86543ff1ac65")
+	(paper "A4")
+	(lib_symbols)
+	(sheet
+		(at 64.77 80.01)
+		(size 29.21 12.7)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "95e3d37c-c6a4-4353-bb14-63a131133e4c")
+		(property "Sheetname" "connectors"
+			(at 64.77 79.2984 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "connectors.kicad_sch"
+			(at 64.77 93.2946 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "SaturnBController"
+				(path "/afcfca2a-9dd9-4804-a8f9-86543ff1ac65"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 64.77 102.87)
+		(size 33.02 12.7)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "b1267fe1-32bc-4ebf-aa57-cb742283bc3c")
+		(property "Sheetname" "stepper_drivers"
+			(at 64.77 102.1584 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "stepper_drivers.kicad_sch"
+			(at 64.77 116.1546 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "SaturnBController"
+				(path "/afcfca2a-9dd9-4804-a8f9-86543ff1ac65"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 64.77 54.61)
+		(size 29.21 13.97)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "eec15577-af75-4471-aca1-19b1d4eeb79c")
+		(property "Sheetname" "main"
+			(at 64.77 53.8984 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "main.kicad_sch"
+			(at 64.77 69.1646 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "SaturnBController"
+				(path "/afcfca2a-9dd9-4804-a8f9-86543ff1ac65"
+					(page "4")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
+)
